@@ -18,8 +18,14 @@ class QOperation(abc.ABC, Generic[SE]):
 
     # traits
 
-    def trait(self, trait_cls: type[Tr]) -> Tr:
-        return find_trait_cls(type(self), trait_cls)(self)
+    def trait(self, trait_cls: type[Tr], *, required: bool = True) -> Optional[Tr]:
+        trait_cls = find_trait_cls(type(self), trait_cls)
+        if trait_cls is None:
+            if required:
+                raise TypeError(f"Operation {self} does not support trait {trait_cls}")
+            else:
+                return None
+        return trait_cls(self)
 
     # str & repr
 
@@ -41,7 +47,7 @@ class QOperationTrait(Generic[Op], abc.ABC):
         return self._operation
 
 
-def find_trait_cls(op_cls: type, trait_cls: type) -> type:
+def find_trait_cls(op_cls: type, trait_cls: type) -> Optional[type]:
     picked_trait_cls = None
     picked_op_cls_order = None
     for t_cls in iter_subclasses_recursively(QOperationTrait):
@@ -60,8 +66,6 @@ def find_trait_cls(op_cls: type, trait_cls: type) -> type:
                 continue
             picked_trait_cls = t_cls
             picked_op_cls_order = op_cls_order
-    if picked_trait_cls is None:
-        raise TypeError(f"{op_cls} is not supported by {trait_cls}")
     return picked_trait_cls
 
 
