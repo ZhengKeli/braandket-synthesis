@@ -55,7 +55,7 @@ class ControlledOperation(QOperation[SE], Generic[Op, SE]):
     def __init__(self, operation: Op, keys: Union[int, Iterable] = 1, *, name: Optional[str] = None):
         super().__init__(name=name)
         self._operation = operation
-        self._keys = keys or (1,)
+        self._keys = keys
 
     @property
     def operation(self) -> Op:
