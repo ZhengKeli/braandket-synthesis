@@ -19,13 +19,13 @@ class QOperation(abc.ABC, Generic[SE]):
     # traits
 
     def trait(self, trait_cls: type[Tr], *, required: bool = True) -> Optional[Tr]:
-        trait_cls = find_trait_cls(type(self), trait_cls)
-        if trait_cls is None:
+        found_trait_cls = find_trait_cls(type(self), trait_cls)
+        if found_trait_cls is None:
             if required:
                 raise TypeError(f"Operation {self} does not support trait {trait_cls}")
             else:
                 return None
-        return trait_cls(self)
+        return found_trait_cls(self)
 
     # str & repr
 
