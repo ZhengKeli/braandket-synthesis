@@ -71,9 +71,9 @@ class ControlledOperationTensorTrait(TensorTrait[ControlledOperation]):
         control_spaces, target_spaces = spaces
 
         control_i_tensor = prod(*(
-            space.identity() for space in iter_structured(control_spaces)))
+            sp.identity() for sp in iter_structured(control_spaces)))
         control_on_tensor = prod(*(
-            sp.projector(v) for sp, v in iter_structured_zip(control_spaces, self.operation.keys)))
+            sp.projector(k) for sp, k in iter_structured_zip(control_spaces, self.operation.keys)))
         control_off_tensor = control_i_tensor - control_on_tensor
 
         target_on_operator = self.operation.operation.trait(TensorTrait).tensor(target_spaces, backend=backend)
