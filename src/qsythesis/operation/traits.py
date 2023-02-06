@@ -42,6 +42,9 @@ class ApplyOnMixedState(QOperationTrait[Op], Generic[Op], abc.ABC):
 
 
 class ToKraus(ApplyOnMixedState[Op], Generic[Op], abc.ABC):
+    def __call__(self, spaces: KetSpaces, *, backend: Optional[Backend] = None) -> tuple[OperatorTensor, ...]:
+        return self.to_kraus(spaces, backend=backend)
+
     @abc.abstractmethod
     def to_kraus(self, spaces: KetSpaces, *, backend: Optional[Backend] = None) -> tuple[OperatorTensor, ...]:
         pass
@@ -54,6 +57,9 @@ class ToKraus(ApplyOnMixedState[Op], Generic[Op], abc.ABC):
 
 
 class ToTensor(ToKraus[Op], ApplyOnPureState[Op], Generic[Op], abc.ABC):
+    def __call__(self, spaces: KetSpaces, *, backend: Optional[Backend] = None) -> OperatorTensor:
+        return self.to_tensor(spaces, backend=backend)
+
     @abc.abstractmethod
     def to_tensor(self, spaces: KetSpaces, *, backend: Optional[Backend] = None) -> OperatorTensor:
         pass
