@@ -12,7 +12,14 @@ from .utils import iter_structured, iter_structured_zip
 class SequentialOperation(QOperation[tuple], Generic[Op]):
     def __init__(self, steps: Iterable[Op], *, name: Optional[str] = None):
         super().__init__(name=name)
-        self._steps = tuple(steps)
+
+        # check
+        steps = tuple(steps)
+        for i, step in enumerate(steps):
+            if not isinstance(step, QOperation):
+                raise TypeError(f"steps[{i}]={step} is not a QOperation!")
+
+        self._steps = steps
 
     @property
     def steps(self) -> tuple[Op, ...]:
@@ -32,6 +39,11 @@ class SequentialOperationToTensor(ToTensor[SequentialOperation]):
 class RemappedOperation(QOperation[SE], Generic[Op, SE]):
     def __init__(self, operation: Op, mapping: Callable[[KetSpaces], KetSpaces], *, name: Optional[str] = None):
         super().__init__(name=name)
+
+        # check
+        if not isinstance(operation, QOperation):
+            raise TypeError(f"operation={operation} is not a QOperation!")
+
         self._operation = operation
         self._mapping = mapping
 
@@ -54,6 +66,11 @@ class RemappedOperationToTensor(ToTensor[RemappedOperation]):
 class ControlledOperation(QOperation[SE], Generic[Op, SE]):
     def __init__(self, operation: Op, keys: Union[int, Iterable] = 1, *, name: Optional[str] = None):
         super().__init__(name=name)
+
+        # check
+        if not isinstance(operation, QOperation):
+            raise TypeError(f"operation={operation} is not a QOperation!")
+
         self._operation = operation
         self._keys = keys
 
