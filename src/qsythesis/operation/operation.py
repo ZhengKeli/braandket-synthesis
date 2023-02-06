@@ -50,21 +50,26 @@ class QOperationTrait(Generic[Op], abc.ABC):
 def find_trait_cls(op_cls: type, trait_cls: type) -> Optional[type]:
     picked_trait_cls = None
     picked_op_cls_order = None
-    for t_cls in iter_subclasses_recursively(QOperationTrait):
-        if not issubclass(t_cls, trait_cls):
+    for tr_cls in iter_subclasses_recursively(QOperationTrait):
+        if not issubclass(tr_cls, trait_cls):
             continue
-        if getattr(t_cls, '__abstractmethods__', ()):
+        if getattr(tr_cls, '__abstractmethods__', ()):
             continue
-        for base in t_cls.__orig_bases__:  # type: ignore
-            if not issubclass(base.__origin__, QOperationTrait):
+        for tr_cls_base in tr_cls.__orig_bases__:  # type: ignore
+            tr_cls_base_org = getattr(tr_cls_base, '__origin__', None)
+            if tr_cls_base_org is None:
                 continue
-            o_cls = base.__args__[0]
-            if not issubclass(o_cls, op_cls):
+            if not issubclass(tr_cls_base_org, QOperationTrait):
                 continue
-            op_cls_order = op_cls.__mro__.index(o_cls)
+            tr_cls_base_arg = tr_cls_base.__args__[0]
+            if isinstance(tr_cls_base_arg, TypeVar):
+                continue
+            if not issubclass(op_cls, tr_cls_base_arg):
+                continue
+            op_cls_order = op_cls.__mro__.index(tr_cls_base_arg)
             if picked_op_cls_order is not None and op_cls_order >= picked_op_cls_order:
                 continue
-            picked_trait_cls = t_cls
+            picked_trait_cls = tr_cls
             picked_op_cls_order = op_cls_order
     return picked_trait_cls
 
