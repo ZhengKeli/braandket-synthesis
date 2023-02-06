@@ -3,7 +3,7 @@ from typing import Callable, Generic, Iterable, Optional, Union
 from braandket.backend import Backend
 from braandket.tensor import OperatorTensor, prod, sum
 from .operation import Op, QOperation, SE
-from .traits import KetSpaces, TensorTrait
+from .traits import KetSpaces, ToTensor
 from .utils import iter_structured, iter_structured_zip
 
 
@@ -19,10 +19,10 @@ class SequentialOperation(QOperation[tuple], Generic[Op]):
         return self._steps
 
 
-class SequentialOperationTensorTrait(TensorTrait[SequentialOperation]):
-    def tensor(self, spaces: KetSpaces, *, backend: Optional[Backend] = None) -> OperatorTensor:
+class SequentialOperationToTensor(ToTensor[SequentialOperation]):
+    def to_tensor(self, spaces: KetSpaces, *, backend: Optional[Backend] = None) -> OperatorTensor:
         return OperatorTensor.of(prod(*(
-            step.trait(TensorTrait).tensor(spaces, backend=backend)
+            step.trait(ToTensor).to_tensor(spaces, backend=backend)
             for step in self.operation.steps
         )))
 
@@ -44,9 +44,9 @@ class RemappedOperation(QOperation[SE], Generic[Op, SE]):
         return self._mapping
 
 
-class RemappedOperationTensorTrait(TensorTrait[RemappedOperation]):
-    def tensor(self, spaces: KetSpaces, *, backend: Optional[Backend] = None) -> OperatorTensor:
-        return self.operation.operation.trait(TensorTrait).tensor(self.operation.mapping(spaces), backend=backend)
+class RemappedOperationToTensor(ToTensor[RemappedOperation]):
+    def to_tensor(self, spaces: KetSpaces, *, backend: Optional[Backend] = None) -> OperatorTensor:
+        return self.operation.operation.trait(ToTensor).to_tensor(self.operation.mapping(spaces), backend=backend)
 
 
 # controlled
@@ -66,8 +66,8 @@ class ControlledOperation(QOperation[SE], Generic[Op, SE]):
         return self._keys
 
 
-class ControlledOperationTensorTrait(TensorTrait[ControlledOperation]):
-    def tensor(self, spaces: KetSpaces, *, backend: Optional[Backend] = None) -> OperatorTensor:
+class ControlledOperationToTensor(ToTensor[ControlledOperation]):
+    def to_tensor(self, spaces: KetSpaces, *, backend: Optional[Backend] = None) -> OperatorTensor:
         control_spaces, target_spaces = spaces
 
         control_i_tensor = prod(*(
@@ -76,7 +76,7 @@ class ControlledOperationTensorTrait(TensorTrait[ControlledOperation]):
             sp.projector(k) for sp, k in iter_structured_zip(control_spaces, self.operation.keys)))
         control_off_tensor = control_i_tensor - control_on_tensor
 
-        target_on_operator = self.operation.operation.trait(TensorTrait).tensor(target_spaces, backend=backend)
+        target_on_operator = self.operation.operation.trait(ToTensor).to_tensor(target_spaces, backend=backend)
         target_off_operator = 1
 
         return OperatorTensor.of(sum(

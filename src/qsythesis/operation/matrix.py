@@ -4,7 +4,7 @@ import numpy as np
 
 from braandket import Backend, OperatorTensor
 from .operation import QOperation
-from .traits import KetSpaces, TensorTrait
+from .traits import KetSpaces, ToTensor
 from .utils import iter_structured
 
 
@@ -20,8 +20,8 @@ class MatrixOperation(QOperation):
         return self._matrix
 
 
-class OperationByMatrixTensorTrait(TensorTrait[MatrixOperation]):
-    def tensor(self, spaces: KetSpaces, *, backend: Optional[Backend] = None) -> OperatorTensor:
+class OperationByMatrixToTensor(ToTensor[MatrixOperation]):
+    def to_tensor(self, spaces: KetSpaces, *, backend: Optional[Backend] = None) -> OperatorTensor:
         spaces = tuple(iter_structured(spaces))
         return OperatorTensor.from_matrix(self.operation.matrix, spaces, backend=backend)
 
