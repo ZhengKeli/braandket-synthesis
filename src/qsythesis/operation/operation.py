@@ -27,14 +27,6 @@ class QOperation(abc.ABC, Generic[SE]):
                 return None
         return found_trait_cls(self)
 
-    # str & repr
-
-    def __str__(self):
-        return f"{type(self).__name__}"
-
-    def __repr__(self):
-        return f"<{type(self).__name__}>"
-
 
 # trait
 
