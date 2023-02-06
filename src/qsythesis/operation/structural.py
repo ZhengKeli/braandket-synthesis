@@ -37,19 +37,19 @@ class SequentialOperationToTensor(ToTensor[SequentialOperation]):
 # remapped
 
 class RemappedOperation(QOperation[SE], Generic[Op, SE]):
-    def __init__(self, operation: Op, mapping: Callable[[KetSpaces], KetSpaces], *, name: Optional[str] = None):
+    def __init__(self, original: Op, mapping: Callable[[KetSpaces], KetSpaces], *, name: Optional[str] = None):
         super().__init__(name=name)
 
         # check
-        if not isinstance(operation, QOperation):
-            raise TypeError(f"operation={operation} is not a QOperation!")
+        if not isinstance(original, QOperation):
+            raise TypeError(f"original={original} is not a QOperation!")
 
-        self._operation = operation
+        self._original = original
         self._mapping = mapping
 
     @property
-    def operation(self) -> Op:
-        return self._operation
+    def original(self) -> Op:
+        return self._original
 
     @property
     def mapping(self) -> Callable[[KetSpaces], KetSpaces]:
@@ -58,25 +58,25 @@ class RemappedOperation(QOperation[SE], Generic[Op, SE]):
 
 class RemappedOperationToTensor(ToTensor[RemappedOperation]):
     def to_tensor(self, spaces: KetSpaces, *, backend: Optional[Backend] = None) -> OperatorTensor:
-        return self.operation.operation.trait(ToTensor).to_tensor(self.operation.mapping(spaces), backend=backend)
+        return self.operation.original.trait(ToTensor).to_tensor(self.operation.mapping(spaces), backend=backend)
 
 
 # controlled
 
 class ControlledOperation(QOperation[SE], Generic[Op, SE]):
-    def __init__(self, operation: Op, keys: Union[int, Iterable] = 1, *, name: Optional[str] = None):
+    def __init__(self, bullet: Op, keys: Union[int, Iterable] = 1, *, name: Optional[str] = None):
         super().__init__(name=name)
 
         # check
-        if not isinstance(operation, QOperation):
-            raise TypeError(f"operation={operation} is not a QOperation!")
+        if not isinstance(bullet, QOperation):
+            raise TypeError(f"bullet={bullet} is not a QOperation!")
 
-        self._operation = operation
+        self._bullet = bullet
         self._keys = keys
 
     @property
-    def operation(self) -> Op:
-        return self._operation
+    def bullet(self) -> Op:
+        return self._bullet
 
     @property
     def keys(self) -> Union[int, Iterable]:
@@ -93,7 +93,7 @@ class ControlledOperationToTensor(ToTensor[ControlledOperation]):
             sp.projector(k) for sp, k in iter_structured_zip(control_spaces, self.operation.keys)))
         control_off_tensor = control_i_tensor - control_on_tensor
 
-        target_on_operator = self.operation.operation.trait(ToTensor).to_tensor(target_spaces, backend=backend)
+        target_on_operator = self.operation.bullet.trait(ToTensor).to_tensor(target_spaces, backend=backend)
         target_off_operator = 1
 
         return OperatorTensor.of(sum(

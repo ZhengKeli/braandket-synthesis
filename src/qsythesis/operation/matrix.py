@@ -20,7 +20,7 @@ class MatrixOperation(QOperation):
         return self._matrix
 
 
-class OperationByMatrixToTensor(ToTensor[MatrixOperation]):
+class MatrixOperationToTensor(ToTensor[MatrixOperation]):
     def to_tensor(self, spaces: KetSpaces, *, backend: Optional[Backend] = None) -> OperatorTensor:
         spaces = tuple(iter_structured(spaces))
         return OperatorTensor.from_matrix(self.operation.matrix, spaces, backend=backend)
