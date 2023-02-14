@@ -3,7 +3,7 @@ from typing import Optional
 import numpy as np
 
 from braandket import Backend, OperatorTensor
-from .operation import QOperation
+from braandket_synthesis.basics import QOperation
 from .traits import KetSpaces, ToTensor
 from .utils import iter_structured
 

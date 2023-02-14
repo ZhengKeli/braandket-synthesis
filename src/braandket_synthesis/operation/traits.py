@@ -2,7 +2,7 @@ import abc
 from typing import Generic, Iterable, Optional, Union
 
 from braandket import Backend, KetSpace, MixedStateTensor, OperatorTensor, PureStateTensor, QComposed, QModel, QParticle
-from .operation import Op, QOperationTrait, SE
+from braandket_synthesis.basics import Op, QOperationTrait, SE
 
 KetSpaces = Union[KetSpace, Iterable['KetSpaces']]
 
