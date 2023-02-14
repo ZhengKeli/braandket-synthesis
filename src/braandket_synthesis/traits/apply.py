@@ -7,41 +7,27 @@ from braandket_synthesis.basics import Op, QOperationTrait, SE
 KetSpaces = Union[KetSpace, Iterable['KetSpaces']]
 
 
-class ApplyOnPureState(QOperationTrait[Op], Generic[Op], abc.ABC):
+class Apply(QOperationTrait[Op], Generic[Op], abc.ABC):
     @abc.abstractmethod
-    def apply_on_pure_state_tensor(self, spaces: KetSpaces, tensor: PureStateTensor) -> tuple[PureStateTensor, SE]:
+    def apply_on_state_tensor(self,
+            spaces: KetSpaces,
+            tensor: Union[PureStateTensor, MixedStateTensor],
+    ) -> tuple[Union[PureStateTensor, MixedStateTensor], SE]:
         pass
 
-    def apply_on_pure_state_model(self, model: QModel) -> SE:
+    def apply_on_model(self, model: QModel) -> SE:
         assert isinstance(model, (QParticle, QComposed))
 
         state_tensor = model.state.tensor
-        assert isinstance(state_tensor, PureStateTensor)
+        assert isinstance(state_tensor, (PureStateTensor, MixedStateTensor))
 
-        state_tensor, side_effect = self.apply_on_pure_state_tensor(model, state_tensor)
-
+        state_tensor, side_effect = self.apply_on_state_tensor(model, state_tensor)
         model.state.tensor = state_tensor
+
         return side_effect
 
 
-class ApplyOnMixedState(QOperationTrait[Op], Generic[Op], abc.ABC):
-    @abc.abstractmethod
-    def apply_on_mixed_state_tensor(self, spaces: KetSpaces, tensor: MixedStateTensor) -> tuple[MixedStateTensor, SE]:
-        pass
-
-    def apply_on_mixed_state_model(self, model: QModel) -> SE:
-        assert isinstance(model, (QParticle, QComposed))
-
-        state_tensor = model.state.tensor
-        assert isinstance(state_tensor, MixedStateTensor)
-
-        state_tensor, side_effect = self.apply_on_mixed_state_tensor(model, state_tensor)
-
-        model.state.tensor = state_tensor
-        return side_effect
-
-
-class ToKraus(ApplyOnMixedState[Op], Generic[Op], abc.ABC):
+class ToKraus(Apply[Op], Generic[Op], abc.ABC):
     def __call__(self, spaces: KetSpaces, *, backend: Optional[Backend] = None) -> tuple[OperatorTensor, ...]:
         return self.to_kraus(spaces, backend=backend)
 
@@ -49,14 +35,31 @@ class ToKraus(ApplyOnMixedState[Op], Generic[Op], abc.ABC):
     def to_kraus(self, spaces: KetSpaces, *, backend: Optional[Backend] = None) -> tuple[OperatorTensor, ...]:
         pass
 
-    def apply_on_mixed_state_tensor(self, spaces: KetSpaces, tensor: MixedStateTensor) -> tuple[MixedStateTensor, None]:
-        return MixedStateTensor.of(sum(
-            kop @ tensor @ kop.ct
-            for kop in self.to_kraus(spaces, backend=tensor.backend)
-        )), None
+    def apply_on_state_tensor(self,
+            spaces: KetSpaces,
+            tensor: Union[PureStateTensor, MixedStateTensor]
+    ) -> tuple[Union[PureStateTensor, MixedStateTensor], None]:
+        kraus_ops = self.to_kraus(spaces, backend=tensor.backend)
+
+        # case when there is no Kraus operator, returning 0
+        if len(kraus_ops) == 0:
+            if isinstance(tensor, PureStateTensor):
+                return PureStateTensor.of(0, ()), None
+            elif isinstance(tensor, MixedStateTensor):
+                return MixedStateTensor.of(0, ()), None
+
+        # case when the resulting state can be pure (performing the tensor product)
+        if len(kraus_ops) == 1:
+            if isinstance(tensor, PureStateTensor):
+                return kraus_ops[0] @ tensor, None
+
+        # case when the resulting is mixed (performing the Kraus-sum)
+        if isinstance(tensor, PureStateTensor):
+            tensor = tensor @ tensor.ct
+        return MixedStateTensor.of(sum(kop @ tensor @ kop.ct for kop in kraus_ops)), None
 
 
-class ToTensor(ToKraus[Op], ApplyOnPureState[Op], Generic[Op], abc.ABC):
+class ToTensor(ToKraus[Op], Generic[Op], abc.ABC):
     def __call__(self, spaces: KetSpaces, *, backend: Optional[Backend] = None) -> OperatorTensor:
         return self.to_tensor(spaces, backend=backend)
 
@@ -64,8 +67,5 @@ class ToTensor(ToKraus[Op], ApplyOnPureState[Op], Generic[Op], abc.ABC):
     def to_tensor(self, spaces: KetSpaces, *, backend: Optional[Backend] = None) -> OperatorTensor:
         pass
 
-    def to_kraus(self, spaces: KetSpaces, *, backend: Optional[Backend] = None) -> tuple[OperatorTensor, ...]:
+    def to_kraus(self, spaces: KetSpaces, *, backend: Optional[Backend] = None) -> tuple[OperatorTensor]:
         return self.to_tensor(spaces, backend=backend),
-
-    def apply_on_pure_state_tensor(self, spaces: KetSpaces, tensor: PureStateTensor) -> tuple[PureStateTensor, None]:
-        return self.to_tensor(spaces, backend=tensor.backend) @ tensor, None

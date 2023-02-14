@@ -1,1 +1,1 @@
-from .apply import KetSpaces, ToTensor, ToKraus, ApplyOnPureState, ApplyOnMixedState
+from .apply import Apply, KetSpaces, ToKraus, ToTensor
