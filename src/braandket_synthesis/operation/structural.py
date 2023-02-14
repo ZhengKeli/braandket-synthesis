@@ -3,7 +3,7 @@ from typing import Callable, Generic, Iterable, Optional, Union
 from braandket.backend import Backend
 from braandket.tensor import OperatorTensor, prod, sum
 from braandket_synthesis.basics import Op, QOperation, SE
-from .traits import KetSpaces, ToTensor
+from braandket_synthesis.traits import KetSpaces, ToTensor
 from .utils import iter_structured, iter_structured_zip
 
 

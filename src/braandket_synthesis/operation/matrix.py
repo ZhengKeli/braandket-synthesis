@@ -4,7 +4,7 @@ import numpy as np
 
 from braandket import Backend, OperatorTensor
 from braandket_synthesis.basics import QOperation
-from .traits import KetSpaces, ToTensor
+from braandket_synthesis.traits import KetSpaces, ToTensor
 from .utils import iter_structured
 
 
