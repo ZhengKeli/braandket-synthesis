@@ -5,7 +5,7 @@ import numpy as np
 from braandket import Backend, OperatorTensor
 from braandket_synthesis.basics import QOperation
 from braandket_synthesis.traits import KetSpaces, ToTensor
-from .utils import iter_structured
+from braandket_synthesis.utils import iter_structured
 
 
 # generic
