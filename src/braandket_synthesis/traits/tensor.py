@@ -1,12 +1,12 @@
 import abc
-from typing import Generic, Optional, Union
+from typing import Optional, Union
 
 from braandket import Backend, MixedStateTensor, OperatorTensor, PureStateTensor
 from braandket_synthesis.basics import Op
 from .apply import Apply, KetSpaces
 
 
-class ToKraus(Apply[Op], Generic[Op], abc.ABC):
+class ToKraus(Apply[Op], abc.ABC):
     def __call__(self, spaces: KetSpaces, *, backend: Optional[Backend] = None) -> tuple[OperatorTensor, ...]:
         return self.to_kraus(spaces, backend=backend)
 
@@ -38,7 +38,7 @@ class ToKraus(Apply[Op], Generic[Op], abc.ABC):
         return MixedStateTensor.of(sum(kop @ tensor @ kop.ct for kop in kraus_ops)), None
 
 
-class ToTensor(ToKraus[Op], Generic[Op], abc.ABC):
+class ToTensor(ToKraus[Op], abc.ABC):
     def __call__(self, spaces: KetSpaces, *, backend: Optional[Backend] = None) -> OperatorTensor:
         return self.to_tensor(spaces, backend=backend)
 

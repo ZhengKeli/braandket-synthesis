@@ -1,5 +1,5 @@
 import abc
-from typing import Generic, Iterable, Union
+from typing import Iterable, Union
 
 from braandket import KetSpace, MixedStateTensor, PureStateTensor, QComposed, QModel, QParticle
 from braandket_synthesis.basics import Op, QOperationTrait, SE
@@ -7,7 +7,7 @@ from braandket_synthesis.basics import Op, QOperationTrait, SE
 KetSpaces = Union[KetSpace, Iterable['KetSpaces']]
 
 
-class Apply(QOperationTrait[Op], Generic[Op], abc.ABC):
+class Apply(QOperationTrait[Op], abc.ABC):
     @abc.abstractmethod
     def apply_on_state_tensor(self,
             spaces: KetSpaces,
