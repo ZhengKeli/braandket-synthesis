@@ -3,7 +3,7 @@ from typing import Any, Optional, Union
 
 import numpy as np
 
-from .matrix import QubitsMatrixOperation
+from .numeric import QubitsMatrixOperation
 from .structural import ControlledOperation
 
 
