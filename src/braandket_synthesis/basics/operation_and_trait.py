@@ -1,5 +1,5 @@
 import abc
-from typing import Generic, Iterable, Optional, TypeVar
+from typing import Any, Callable, Generic, Iterable, Optional, TypeVar
 
 SE = TypeVar('SE')
 Op = TypeVar('Op', bound='QOperation')
@@ -11,6 +11,7 @@ Tr = TypeVar('Tr', bound='QOperationTrait')
 class QOperation(abc.ABC, Generic[SE]):
     def __init__(self, *, name: Optional[str] = None):
         self._name = name
+        self._cache: dict[type[Tr], dict[str, Any]] = {}
 
     @property
     def name(self) -> Optional[str]:
@@ -27,6 +28,41 @@ class QOperation(abc.ABC, Generic[SE]):
                 return None
         return found_trait_cls(self)
 
+    # cache
+
+    NoDefault = object()
+
+    def get_cache(self, trait_cls: type[Tr], key: str, default: Any = NoDefault) -> Any:
+        trait_cls_order = None
+        trait_cache_value = default
+        for cache_trait_cls, cache_trait_dict in self._cache.items():
+            if not issubclass(trait_cls, cache_trait_cls):
+                continue
+            if key not in cache_trait_dict:
+                continue
+            cache_trait_cls_order = trait_cls.mro().index(cache_trait_cls)
+            if trait_cls_order is None or cache_trait_cls_order < trait_cls_order:
+                trait_cls_order = cache_trait_cls_order
+                trait_cache_value = cache_trait_dict[key]
+        if trait_cache_value is self.NoDefault:
+            raise KeyError(f"Not found cache value for {trait_cls} and key {key}")
+        return trait_cache_value
+
+    def set_cache(self, trait_cls: type[Tr], key: str, value: Any):
+        cache_trait_dict = self._cache.get(trait_cls)
+        if cache_trait_dict is None:
+            cache_trait_dict = {}
+            self._cache[trait_cls] = cache_trait_dict
+        cache_trait_dict[key] = value
+
+    def get_or_set_cache(self, trait_cls: type[Tr], key: str, default_func: Callable[[], Any]) -> Any:
+        try:
+            return self.get_cache(trait_cls, key)
+        except KeyError:
+            value = default_func()
+            self.set_cache(trait_cls, key, value)
+            return value
+
 
 # trait
 
@@ -37,6 +73,17 @@ class QOperationTrait(Generic[Op], abc.ABC):
     @property
     def operation(self) -> Op:
         return self._operation
+
+    # cache
+
+    def get_cache(self, key: str, default: Any = QOperation.NoDefault) -> Any:
+        return self.operation.get_cache(type(self), key, default)
+
+    def set_cache(self, key: str, value: Any):
+        self.operation.set_cache(type(self), key, value)
+
+    def get_or_set_cache(self, key: str, default_func: Callable[[], Any]) -> Any:
+        return self.operation.get_or_set_cache(type(self), key, default_func)
 
     # operation class resolving
 
