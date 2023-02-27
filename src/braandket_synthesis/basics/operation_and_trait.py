@@ -38,16 +38,12 @@ class QOperationTrait(Generic[Op], abc.ABC):
     def operation(self) -> Op:
         return self._operation
 
+    # operation class resolving
 
-def find_trait_cls(op_cls: type, trait_cls: type) -> Optional[type]:
-    picked_trait_cls = None
-    picked_op_cls_order = None
-    for tr_cls in iter_subclasses_recursively(QOperationTrait):
-        if not issubclass(tr_cls, trait_cls):
-            continue
-        if getattr(tr_cls, '__abstractmethods__', ()):
-            continue
-        for tr_cls_base in tr_cls.__orig_bases__:  # type: ignore
+    @classmethod
+    def op_cls_list(cls) -> tuple[type[Op], ...]:
+        op_cls_list = []
+        for tr_cls_base in getattr(cls, '__orig_bases__', ()):
             tr_cls_base_org = getattr(tr_cls_base, '__origin__', None)
             if tr_cls_base_org is None:
                 continue
@@ -56,14 +52,41 @@ def find_trait_cls(op_cls: type, trait_cls: type) -> Optional[type]:
             tr_cls_base_arg = tr_cls_base.__args__[0]
             if isinstance(tr_cls_base_arg, TypeVar):
                 continue
-            if not issubclass(op_cls, tr_cls_base_arg):
+            if not issubclass(tr_cls_base_arg, QOperation):
                 continue
-            op_cls_order = op_cls.__mro__.index(tr_cls_base_arg)
-            if picked_op_cls_order is not None and op_cls_order >= picked_op_cls_order:
+            op_cls_list.append(tr_cls_base_arg)
+        return tuple(op_cls_list)
+
+    @classmethod
+    def op_cls_order(cls, op_cls: type[Op]) -> Optional[int]:
+        resolved_op_cls_order = None
+        for trait_op_cls in cls.op_cls_list():
+            try:
+                op_cls_order = op_cls.mro().index(trait_op_cls)
+            except ValueError:
                 continue
-            picked_trait_cls = tr_cls
-            picked_op_cls_order = op_cls_order
-    return picked_trait_cls
+            if resolved_op_cls_order is not None and op_cls_order >= resolved_op_cls_order:
+                continue
+            resolved_op_cls_order = op_cls_order
+        return resolved_op_cls_order
+
+
+def find_trait_cls(op_cls: type[Op], trait_cls: type[Tr]) -> Optional[type[Tr]]:
+    resolved_tr_cls = None
+    resolved_op_cls_order = None
+    for tr_cls in iter_subclasses_recursively(QOperationTrait):
+        if not issubclass(tr_cls, trait_cls):
+            continue
+        if getattr(tr_cls, '__abstractmethods__', ()):
+            continue
+        tr_cls_op_cls_order = tr_cls.op_cls_order(op_cls)
+        if tr_cls_op_cls_order is None:
+            continue
+        if resolved_op_cls_order is not None and tr_cls_op_cls_order >= resolved_op_cls_order:
+            continue
+        resolved_tr_cls = tr_cls
+        resolved_op_cls_order = tr_cls_op_cls_order
+    return resolved_tr_cls
 
 
 def iter_subclasses_recursively(cls: type, iterated: Optional[set] = None) -> Iterable[type]:
