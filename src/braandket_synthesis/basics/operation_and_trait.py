@@ -124,26 +124,37 @@ class QOperationTrait(Generic[Op], abc.ABC):
 
 
 def find_trait_cls(op_cls: type[Op], trait_cls: type[Tr]) -> Optional[type[Tr]]:
-    resolved_tr_cls = None
-    resolved_op_cls_order = None
-    for tr_cls in iter_subclasses_recursively(QOperationTrait):
+    resolved = None
+    for tr_cls, tr_cls_order, op_cls_order in iter_trait_cls(op_cls, trait_cls):
+        if resolved is not None:
+            resolved_tr_cls, resolved_tr_cls_order, resolved_op_cls_order = resolved
+            if op_cls_order > resolved_op_cls_order:
+                continue
+            if op_cls_order == resolved_op_cls_order:
+                if tr_cls_order >= resolved_tr_cls_order:
+                    continue
+        resolved = tr_cls, tr_cls_order, op_cls_order
+    return resolved[0] if resolved is not None else None
+
+
+def iter_trait_cls(op_cls: type[Op], trait_cls: type[Tr]) -> Optional[type[Tr]]:
+    for tr_cls in iter_subclasses_recursively(QOperationTrait, reverse=True):
         if not issubclass(tr_cls, trait_cls):
             continue
         if getattr(tr_cls, '__abstractmethods__', ()):
             continue
-        tr_cls_op_cls_order = tr_cls.op_cls_order(op_cls)
-        if tr_cls_op_cls_order is None:
+        tr_cls_order = tr_cls.mro().index(trait_cls)
+        op_cls_order = tr_cls.op_cls_order(op_cls)
+        if op_cls_order is None:
             continue
-        if resolved_op_cls_order is not None and tr_cls_op_cls_order >= resolved_op_cls_order:
-            continue
-        resolved_tr_cls = tr_cls
-        resolved_op_cls_order = tr_cls_op_cls_order
-    return resolved_tr_cls
+        yield tr_cls, tr_cls_order, op_cls_order
 
 
-def iter_subclasses_recursively(cls: type, iterated: Optional[set] = None) -> Iterable[type]:
+def iter_subclasses_recursively(cls: type, iterated: Optional[set] = None, reverse: bool = False) -> Iterable[type]:
     iterated = set() if iterated is None else iterated
-    for sub_cls in cls.__subclasses__():
+    subclasses = cls.__subclasses__()
+    subclasses = reversed(subclasses) if reverse else subclasses
+    for sub_cls in subclasses:
         if sub_cls not in iterated:
             yield sub_cls
             iterated.add(sub_cls)
