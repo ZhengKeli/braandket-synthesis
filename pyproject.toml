@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "braandket-synthesis"
-version = "0.2.0"
+version = "0.2.1"
 
 classifiers = [
     "Programming Language :: Python :: 3",

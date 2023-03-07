@@ -1,3 +1,17 @@
+# v0.2.1
+
+Library improvements:
+
+- Added trait `ControlledApply`
+
+Developing improvements:
+
+- Added GitHub workflow for building and releasing.
+
+Bug fixes:
+
+- Added the missing `CONT` in package `braandket_synthesis.operations`
+
 # v0.2.0
 
 Breaking changes:
