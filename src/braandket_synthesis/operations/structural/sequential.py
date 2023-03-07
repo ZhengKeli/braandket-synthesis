@@ -1,8 +1,8 @@
-from typing import Generic, Iterable, Optional
+from typing import Generic, Iterable, Optional, Union
 
-from braandket import Backend, OperatorTensor, prod
+from braandket import Backend, MixedStateTensor, OperatorTensor, PureStateTensor, prod
 from braandket_synthesis.basics import Op, QOperation
-from braandket_synthesis.traits import KetSpaces, ToTensor
+from braandket_synthesis.traits import KetSpaces, Measure, ToTensor
 
 
 class SequentialOperation(QOperation, Generic[Op]):
@@ -20,6 +20,18 @@ class SequentialOperation(QOperation, Generic[Op]):
     @property
     def steps(self) -> tuple[Op, ...]:
         return self._steps
+
+
+class SequentialOperationMeasure(Measure[SequentialOperation, tuple]):
+    def measure_on_state_tensor(self,
+            spaces: KetSpaces,
+            tensor: Union[PureStateTensor, MixedStateTensor]
+    ) -> tuple[Union[PureStateTensor, MixedStateTensor], tuple]:
+        results = []
+        for step in self.operation.steps:
+            tensor, result = step.trait(Measure).measure_on_state_tensor(spaces, tensor)
+            results.append(result)
+        return tensor, tuple(results)
 
 
 class SequentialOperationToTensor(ToTensor[SequentialOperation]):
