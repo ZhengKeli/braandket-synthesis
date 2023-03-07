@@ -6,7 +6,7 @@ from braandket_synthesis.traits import KetSpaces, ToTensor
 from braandket_synthesis.utils import iter_structured, iter_structured_zip
 
 
-class ControlledOperation(QOperation, Generic[Op]):
+class Controlled(QOperation, Generic[Op]):
     def __init__(self, bullet: Op, keys: Union[int, Iterable] = 1, *, name: Optional[str] = None):
         super().__init__(name=name)
 
@@ -26,7 +26,7 @@ class ControlledOperation(QOperation, Generic[Op]):
         return self._keys
 
 
-class ControlledOperationToTensor(ToTensor[ControlledOperation]):
+class ControlledToTensor(ToTensor[Controlled]):
     def to_tensor(self, spaces: KetSpaces, *, backend: Optional[Backend] = None) -> OperatorTensor:
         control_spaces, target_spaces = spaces
 

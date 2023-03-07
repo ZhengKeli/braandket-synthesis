@@ -1,3 +1,3 @@
-from .controlled import ControlledOperation
-from .remapped import RemappedOperation
-from .sequential import SequentialOperation
+from .controlled import Controlled
+from .remapped import Remapped
+from .sequential import Sequential

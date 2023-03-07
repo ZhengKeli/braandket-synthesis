@@ -5,7 +5,7 @@ from braandket_synthesis.basics import Op, QOperation
 from braandket_synthesis.traits import KetSpaces, Measure, R, ToTensor
 
 
-class RemappedOperation(QOperation, Generic[Op]):
+class Remapped(QOperation, Generic[Op]):
     def __init__(self, original: Op, mapping: Callable[[KetSpaces], KetSpaces], *, name: Optional[str] = None):
         super().__init__(name=name)
 
@@ -25,7 +25,7 @@ class RemappedOperation(QOperation, Generic[Op]):
         return self._mapping
 
 
-class RemappedOperationMeasure(Measure[RemappedOperation, R]):
+class RemappedMeasure(Measure[Remapped, R]):
     def measure_on_state_tensor(self,
             spaces: KetSpaces,
             tensor: Union[PureStateTensor, MixedStateTensor]
@@ -33,6 +33,6 @@ class RemappedOperationMeasure(Measure[RemappedOperation, R]):
         return self.operation.trait(Measure).measure_on_state_tensor(self.operation.mapping(spaces), tensor)
 
 
-class RemappedOperationToTensor(ToTensor[RemappedOperation]):
+class RemappedToTensor(ToTensor[Remapped]):
     def to_tensor(self, spaces: KetSpaces, *, backend: Optional[Backend] = None) -> OperatorTensor:
         return self.operation.original.trait(ToTensor).to_tensor(self.operation.mapping(spaces), backend=backend)

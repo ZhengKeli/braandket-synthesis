@@ -4,7 +4,7 @@ from typing import Any, Optional, Union
 import numpy as np
 
 from .numeric import QubitsMatrixOperation
-from .structural import ControlledOperation
+from .structural import Controlled
 
 
 # abstract
@@ -131,17 +131,17 @@ class Rz(QuantumGateWithParam):
 
 # controlled qubit gates
 
-class CX(ControlledOperation[X]):
+class CX(Controlled[X]):
     def __init__(self, *, name: Optional[str] = None):
         super().__init__(X(), 1, name=name)
 
 
-class CY(ControlledOperation[Y]):
+class CY(Controlled[Y]):
     def __init__(self, *, name: Optional[str] = None):
         super().__init__(Y(), 1, name=name)
 
 
-class CZ(ControlledOperation[Z]):
+class CZ(Controlled[Z]):
     def __init__(self, *, name: Optional[str] = None):
         super().__init__(Z(), 1, name=name)
 

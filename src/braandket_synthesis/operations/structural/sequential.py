@@ -5,7 +5,7 @@ from braandket_synthesis.basics import Op, QOperation
 from braandket_synthesis.traits import KetSpaces, Measure, ToTensor
 
 
-class SequentialOperation(QOperation, Generic[Op]):
+class Sequential(QOperation, Generic[Op]):
     def __init__(self, steps: Iterable[Op], *, name: Optional[str] = None):
         super().__init__(name=name)
 
@@ -22,7 +22,7 @@ class SequentialOperation(QOperation, Generic[Op]):
         return self._steps
 
 
-class SequentialOperationMeasure(Measure[SequentialOperation, tuple]):
+class SequentialMeasure(Measure[Sequential, tuple]):
     def measure_on_state_tensor(self,
             spaces: KetSpaces,
             tensor: Union[PureStateTensor, MixedStateTensor]
@@ -34,7 +34,7 @@ class SequentialOperationMeasure(Measure[SequentialOperation, tuple]):
         return tensor, tuple(results)
 
 
-class SequentialOperationToTensor(ToTensor[SequentialOperation]):
+class SequentialToTensor(ToTensor[Sequential]):
     def to_tensor(self, spaces: KetSpaces, *, backend: Optional[Backend] = None) -> OperatorTensor:
         return OperatorTensor.of(prod(*(
             step.trait(ToTensor).to_tensor(spaces, backend=backend)
