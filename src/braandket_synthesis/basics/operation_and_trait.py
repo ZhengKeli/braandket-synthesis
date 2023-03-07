@@ -96,11 +96,16 @@ class QOperationTrait(Generic[Op], abc.ABC):
                 continue
             if not issubclass(tr_cls_base_org, QOperationTrait):
                 continue
-            tr_cls_base_arg = tr_cls_base.__args__[0]
+            tr_cls_base_args = getattr(tr_cls_base, '__args__', ())
+            if len(tr_cls_base_args) == 0:
+                raise TypeError(f"{cls} is expected to have a subclass of QOperation as the first type argument!"
+                                f"Got no type arguments!")
+            tr_cls_base_arg = tr_cls_base_args[0]
             if isinstance(tr_cls_base_arg, TypeVar):
                 continue
             if not issubclass(tr_cls_base_arg, QOperation):
-                continue
+                raise TypeError(f"{cls} is expected to have a subclass of QOperation as the first type argument!"
+                                f"Got {tr_cls_base_arg}!")
             op_cls_list.append(tr_cls_base_arg)
         return tuple(op_cls_list)
 
