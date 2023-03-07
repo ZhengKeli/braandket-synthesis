@@ -1,14 +1,13 @@
 import abc
 from typing import Any, Callable, Generic, Iterable, Optional, TypeVar
 
-SE = TypeVar('SE')
 Op = TypeVar('Op', bound='QOperation')
 Tr = TypeVar('Tr', bound='QOperationTrait')
 
 
 # operation
 
-class QOperation(abc.ABC, Generic[SE]):
+class QOperation(abc.ABC):
     def __init__(self, *, name: Optional[str] = None):
         self._name = name
         self._cache: dict[type[Tr], dict[str, Any]] = {}

@@ -1,12 +1,12 @@
 from typing import Generic, Iterable, Optional, Union
 
 from braandket import Backend, OperatorTensor, prod, sum
-from braandket_synthesis.basics import Op, QOperation, SE
+from braandket_synthesis.basics import Op, QOperation
 from braandket_synthesis.traits import KetSpaces, ToTensor
 from braandket_synthesis.utils import iter_structured, iter_structured_zip
 
 
-class ControlledOperation(QOperation[SE], Generic[Op, SE]):
+class ControlledOperation(QOperation, Generic[Op]):
     def __init__(self, bullet: Op, keys: Union[int, Iterable] = 1, *, name: Optional[str] = None):
         super().__init__(name=name)
 

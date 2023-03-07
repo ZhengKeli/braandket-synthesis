@@ -5,7 +5,7 @@ from braandket_synthesis.basics import Op, QOperation
 from braandket_synthesis.traits import KetSpaces, ToTensor
 
 
-class SequentialOperation(QOperation[tuple], Generic[Op]):
+class SequentialOperation(QOperation, Generic[Op]):
     def __init__(self, steps: Iterable[Op], *, name: Optional[str] = None):
         super().__init__(name=name)
 

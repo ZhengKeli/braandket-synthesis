@@ -1,1 +1,1 @@
-from .operation_and_trait import QOperation, QOperationTrait, SE, Op, Tr
+from .operation_and_trait import Op, QOperation, QOperationTrait, Tr

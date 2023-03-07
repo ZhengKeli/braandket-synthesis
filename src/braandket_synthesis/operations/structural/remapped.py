@@ -1,11 +1,11 @@
 from typing import Callable, Generic, Optional
 
 from braandket import Backend, OperatorTensor
-from braandket_synthesis.basics import Op, QOperation, SE
+from braandket_synthesis.basics import Op, QOperation
 from braandket_synthesis.traits import KetSpaces, ToTensor
 
 
-class RemappedOperation(QOperation[SE], Generic[Op, SE]):
+class RemappedOperation(QOperation, Generic[Op]):
     def __init__(self, original: Op, mapping: Callable[[KetSpaces], KetSpaces], *, name: Optional[str] = None):
         super().__init__(name=name)
 

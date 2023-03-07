@@ -131,17 +131,17 @@ class Rz(QuantumGateWithParam):
 
 # controlled qubit gates
 
-class CX(ControlledOperation[X, None]):
+class CX(ControlledOperation[X]):
     def __init__(self, *, name: Optional[str] = None):
         super().__init__(X(), 1, name=name)
 
 
-class CY(ControlledOperation[Y, None]):
+class CY(ControlledOperation[Y]):
     def __init__(self, *, name: Optional[str] = None):
         super().__init__(Y(), 1, name=name)
 
 
-class CZ(ControlledOperation[Z, None]):
+class CZ(ControlledOperation[Z]):
     def __init__(self, *, name: Optional[str] = None):
         super().__init__(Z(), 1, name=name)
 
