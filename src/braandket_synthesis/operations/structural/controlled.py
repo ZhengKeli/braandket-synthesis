@@ -3,7 +3,7 @@ from typing import Generic, Iterable, Optional, Union
 from braandket import Backend, MixedStateTensor, OperatorTensor, PureStateTensor, prod, sum
 from braandket_synthesis.basics import Op, QOperation
 from braandket_synthesis.traits import Apply, KetSpaces, ToTensor
-from braandket_synthesis.utils import iter_structured, iter_structured_zip
+from braandket_synthesis.utils import iter_structure, iter_zip_structures
 
 
 class Controlled(QOperation, Generic[Op]):
@@ -34,9 +34,9 @@ class ControlledApply(Apply[Controlled]):
         control_spaces, target_spaces = spaces
 
         control_i_tensor = prod(*(
-            sp.identity() for sp in iter_structured(control_spaces)))
+            sp.identity() for sp in iter_structure(control_spaces)))
         control_on_tensor = prod(*(
-            sp.projector(k) for sp, k in iter_structured_zip(control_spaces, self.operation.keys)))
+            sp.projector(k) for sp, k in iter_zip_structures(control_spaces, self.operation.keys)))
         control_off_tensor = control_i_tensor - control_on_tensor
 
         target_on_tensor = self.operation.bullet.trait(Apply).apply_on_state_tensor(target_spaces, tensor)
@@ -61,9 +61,9 @@ class ControlledToTensor(ToTensor[Controlled]):
         control_spaces, target_spaces = spaces
 
         control_i_tensor = prod(*(
-            sp.identity() for sp in iter_structured(control_spaces)))
+            sp.identity() for sp in iter_structure(control_spaces)))
         control_on_tensor = prod(*(
-            sp.projector(k) for sp, k in iter_structured_zip(control_spaces, self.operation.keys)))
+            sp.projector(k) for sp, k in iter_zip_structures(control_spaces, self.operation.keys)))
         control_off_tensor = control_i_tensor - control_on_tensor
 
         target_on_operator = self.operation.bullet.trait(ToTensor).to_tensor(target_spaces, backend=backend)

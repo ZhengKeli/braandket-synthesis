@@ -1,1 +1,1 @@
-from .iter_structured import iter_structured, iter_structured_zip
+from .iter_structured import iter_structure, iter_zip_structures

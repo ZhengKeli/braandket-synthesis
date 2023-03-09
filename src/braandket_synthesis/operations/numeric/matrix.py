@@ -5,7 +5,7 @@ import numpy as np
 from braandket import Backend, OperatorTensor
 from braandket_synthesis.basics import QOperation
 from braandket_synthesis.traits import KetSpaces, ToTensor
-from braandket_synthesis.utils import iter_structured
+from braandket_synthesis.utils import iter_structure
 
 
 class MatrixOperation(QOperation):
@@ -20,5 +20,5 @@ class MatrixOperation(QOperation):
 
 class MatrixOperationToTensor(ToTensor[MatrixOperation]):
     def to_tensor(self, spaces: KetSpaces, *, backend: Optional[Backend] = None) -> OperatorTensor:
-        spaces = tuple(iter_structured(spaces))
+        spaces = tuple(iter_structure(spaces))
         return OperatorTensor.from_matrix(self.operation.matrix, spaces, backend=backend)
