@@ -1,12 +1,15 @@
 from typing import Any, Iterable, Iterator, Union
 
 
-def iter_structure(items: Union[Any, Iterable], *, item_types: Iterable[type] = ()) -> Iterator[Any]:
+def iter_structure(
+        structure: Union[Any, Iterable], *,
+        item_types: Iterable[type] = ()
+) -> Iterator[Any]:
     sub_items = None
 
-    if items not in item_types:
+    if structure not in item_types:
         try:
-            sub_items = iter(items)
+            sub_items = iter(structure)
         except TypeError:
             sub_items = None
 
@@ -14,15 +17,18 @@ def iter_structure(items: Union[Any, Iterable], *, item_types: Iterable[type] = 
         for item in sub_items:
             yield from iter_structure(item, item_types=item_types)
     else:
-        yield items
+        yield structure
 
 
-def iter_zip_structures(*items: Union[Any, Iterable], item_types: Iterable[type] = ()) -> Iterator[tuple]:
+def iter_zip_structures(
+        *structures: Union[Any, Iterable],
+        item_types: Iterable[type] = ()
+) -> Iterator[tuple]:
     sub_items = None
 
-    if items[0] not in item_types:
+    if structures[0] not in item_types:
         try:
-            sub_items = zip(*[iter(item) for item in items])
+            sub_items = zip(*[iter(item) for item in structures])
         except TypeError:
             sub_items = None
 
@@ -30,7 +36,7 @@ def iter_zip_structures(*items: Union[Any, Iterable], item_types: Iterable[type]
         for item in sub_items:
             yield from iter_zip_structures(*item, item_types=item_types)
     else:
-        yield items
+        yield structures
 
 
 def restore_structure(
