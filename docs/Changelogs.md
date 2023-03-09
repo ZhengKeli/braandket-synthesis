@@ -1,3 +1,25 @@
+# v0.2.2
+
+Breaking changes:
+
+- Renamed 2 utils functions
+  - `utils.iter_structured` → `utils.iter_structure`
+  - `utils.iter_structured_zip` → `utils.iter_zip_structures`
+- rearranged parameters of methods:
+  - `Apply.apply_on_state_tensor()`
+  - `Measure.measure_on_state_tensor()`
+
+Library improvements:
+
+- Implemented 2 new operations for measurement
+  - `DesiredMeasurement`
+  - `ProjectiveMeasurement`
+- Upgraded dependency `braandket` to 0.8.1
+
+Developing improvements:
+
+- Added GitHub workflow action to release on PyPI
+
 # v0.2.1
 
 Library improvements:
@@ -47,4 +69,5 @@ Included the following functionalities and features:
   - `ToTensor`, `ToKraus`
   - `IsUnitary`, `IsHermitian`, `IsDiagonal`
 
-We know that, with only these functionalities and features, the library is still far from being good to use. We will continue to add more functionalities and features, making it better and better. And you need to be aware that quite a few **breaking changes** may be introduced along the way. So, please use this library with great caution.
+We know that, with only these functionalities and features, the library is still far from being good to use. We will continue to add more functionalities and features, making it better and better. And you need to be aware that quite a few
+**breaking changes** may be introduced along the way. So, please use this library with great caution.
