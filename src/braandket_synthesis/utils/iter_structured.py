@@ -31,3 +31,23 @@ def iter_zip_structures(*items: Union[Any, Iterable], item_types: Iterable[type]
             yield from iter_zip_structures(*item, item_types=item_types)
     else:
         yield items
+
+
+def restore_structure(
+        values: Iterable[Any],
+        structure: Union[Any, Iterable], *,
+        item_types: Iterable[type] = ()
+) -> Union[Any, tuple]:
+    values = iter(values)
+
+    sub_structures = None
+    if structure not in item_types:
+        try:
+            sub_structures = iter(structure)
+        except TypeError:
+            sub_structures = None
+
+    if sub_structures is not None:
+        return tuple(restore_structure(values, sub_structure) for sub_structure in sub_structures)
+    else:
+        return next(values)
