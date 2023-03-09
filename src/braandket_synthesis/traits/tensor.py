@@ -15,8 +15,8 @@ class ToKraus(Apply[Op], abc.ABC):
         pass
 
     def apply_on_state_tensor(self,
-            spaces: KetSpaces,
-            tensor: Union[PureStateTensor, MixedStateTensor]
+            tensor: Union[PureStateTensor, MixedStateTensor],
+            spaces: KetSpaces
     ) -> tuple[Union[PureStateTensor, MixedStateTensor], None]:
         kraus_ops = self.to_kraus(spaces, backend=tensor.backend)
 

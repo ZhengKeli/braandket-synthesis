@@ -27,10 +27,10 @@ class Remapped(QOperation, Generic[Op]):
 
 class RemappedMeasure(Measure[Remapped, R]):
     def measure_on_state_tensor(self,
-            spaces: KetSpaces,
-            tensor: Union[PureStateTensor, MixedStateTensor]
+            tensor: Union[PureStateTensor, MixedStateTensor],
+            spaces: KetSpaces
     ) -> tuple[Union[PureStateTensor, MixedStateTensor], R]:
-        return self.operation.trait(Measure).measure_on_state_tensor(self.operation.mapping(spaces), tensor)
+        return self.operation.trait(Measure).measure_on_state_tensor(tensor, self.operation.mapping(spaces))
 
 
 class RemappedToTensor(ToTensor[Remapped]):

@@ -24,12 +24,12 @@ class Sequential(QOperation, Generic[Op]):
 
 class SequentialMeasure(Measure[Sequential, tuple]):
     def measure_on_state_tensor(self,
-            spaces: KetSpaces,
-            tensor: Union[PureStateTensor, MixedStateTensor]
+            tensor: Union[PureStateTensor, MixedStateTensor],
+            spaces: KetSpaces
     ) -> tuple[Union[PureStateTensor, MixedStateTensor], tuple]:
         results = []
         for step in self.operation.steps:
-            tensor, result = step.trait(Measure).measure_on_state_tensor(spaces, tensor)
+            tensor, result = step.trait(Measure).measure_on_state_tensor(tensor, spaces)
             results.append(result)
         return tensor, tuple(results)
 

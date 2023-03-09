@@ -28,8 +28,8 @@ class Controlled(QOperation, Generic[Op]):
 
 class ControlledApply(Apply[Controlled]):
     def apply_on_state_tensor(self,
-            spaces: KetSpaces,
-            tensor: Union[PureStateTensor, MixedStateTensor]
+            tensor: Union[PureStateTensor, MixedStateTensor],
+            spaces: KetSpaces
     ) -> Union[PureStateTensor, MixedStateTensor]:
         control_spaces, target_spaces = spaces
 
@@ -39,7 +39,7 @@ class ControlledApply(Apply[Controlled]):
             sp.projector(k) for sp, k in iter_zip_structures(control_spaces, self.operation.keys)))
         control_off_tensor = control_i_tensor - control_on_tensor
 
-        target_on_tensor = self.operation.bullet.trait(Apply).apply_on_state_tensor(target_spaces, tensor)
+        target_on_tensor = self.operation.bullet.trait(Apply).apply_on_state_tensor(tensor, target_spaces)
         target_off_tensor = tensor
 
         if isinstance(tensor, PureStateTensor):

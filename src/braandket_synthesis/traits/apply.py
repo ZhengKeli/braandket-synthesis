@@ -10,8 +10,8 @@ KetSpaces = Union[KetSpace, Iterable['KetSpaces']]
 class Apply(QOperationTrait[Op], abc.ABC):
     @abc.abstractmethod
     def apply_on_state_tensor(self,
-            spaces: KetSpaces,
             tensor: Union[PureStateTensor, MixedStateTensor],
+            spaces: KetSpaces
     ) -> Union[PureStateTensor, MixedStateTensor]:
         pass
 
@@ -21,5 +21,5 @@ class Apply(QOperationTrait[Op], abc.ABC):
         state_tensor = model.state.tensor
         assert isinstance(state_tensor, (PureStateTensor, MixedStateTensor))
 
-        state_tensor = self.apply_on_state_tensor(model, state_tensor)
+        state_tensor = self.apply_on_state_tensor(state_tensor, model)
         model.state.tensor = state_tensor
