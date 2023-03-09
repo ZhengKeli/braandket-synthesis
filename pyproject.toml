@@ -16,7 +16,7 @@ description = "A library for quantum circuit synthesis based on BraAndKet."
 readme = "README.md"
 
 requires-python = ">=3.7"
-dependencies = ["braandket>=0.8.0"]
+dependencies = ["braandket>=0.8.1"]
 
 
 [tool.setuptools]
