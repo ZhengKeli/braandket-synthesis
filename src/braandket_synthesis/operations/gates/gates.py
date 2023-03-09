@@ -3,8 +3,8 @@ from typing import Any, Optional, Union
 
 import numpy as np
 
-from .numeric import QubitsMatrixOperation
-from .structural import Controlled
+from braandket_synthesis.operations.numeric import QubitsMatrixOperation
+from braandket_synthesis.operations.structural import Controlled
 
 
 # abstract
