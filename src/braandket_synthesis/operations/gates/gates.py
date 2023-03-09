@@ -3,6 +3,7 @@ from typing import Any, Optional, Union
 
 import numpy as np
 
+from braandket_synthesis.operations.measurement import DesiredMeasurement, ProjectiveMeasurement
 from braandket_synthesis.operations.numeric import QubitsMatrixOperation
 from braandket_synthesis.operations.structural import Controlled
 
@@ -147,3 +148,9 @@ class CZ(Controlled[Z]):
 
 
 CNOT = CX
+
+# measurements
+
+D = DesiredMeasurement
+
+M = ProjectiveMeasurement
