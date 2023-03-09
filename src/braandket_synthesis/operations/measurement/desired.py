@@ -5,7 +5,6 @@ from braandket_synthesis.basics import QOperation
 from braandket_synthesis.traits import KetSpaces, Measure
 from braandket_synthesis.utils import iter_structure
 from .result import MeasurementResult
-from .utils import component_of_mixed_state, component_of_pure_state
 
 
 class DesiredMeasurement(QOperation):
@@ -50,7 +49,9 @@ def desired_measure_on_pure_state(
     spaces = tuple(spaces)
     values = tuple(values)
 
-    component, prob = component_of_pure_state(tensor, spaces, values)
+    component = tensor.component(((space, value) for space, value in zip(spaces, values)))
+    prob = float(component.norm())
+    component = component.normalize()
 
     ket_tensor = PureStateTensor.of(prod(*(
         space.eigenstate(value, backend=tensor.backend)
@@ -68,7 +69,9 @@ def desired_measure_on_mixed_state(
     spaces = tuple(spaces)
     values = tuple(values)
 
-    component, prob = component_of_mixed_state(tensor, spaces, values)
+    component = tensor.component(((space, value) for space, value in zip(spaces, values)))
+    prob = float(component.norm())
+    component = component.normalize()
 
     ket_tensor = PureStateTensor.of(prod(*(
         space.eigenstate(value, backend=tensor.backend)
