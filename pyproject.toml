@@ -1,24 +1,16 @@
 [build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
 
-
-[project]
+[tool.poetry]
 name = "braandket-synthesis"
-version = "0.2.2"
+version = "0.3.0.dev0"
 
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
-]
 description = "A library for quantum circuit synthesis based on BraAndKet."
 readme = "README.md"
 
-requires-python = ">=3.7"
-dependencies = ["braandket>=0.8.1"]
+authors = []
 
-
-[tool.setuptools]
-package-dir = { "" = "src" }
-packages.find.where = ["src"]
+[tool.poetry.dependencies]
+python = "^3.10"
+braandket-circuit = { git = "https://github.com/ZhengKeli/braandket-circuit", tag = "v0.2.0a1" }
